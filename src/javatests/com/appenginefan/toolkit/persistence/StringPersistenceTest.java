@@ -27,9 +27,7 @@ import com.google.common.base.Functions;
 import junit.framework.TestCase;
 
 /**
- * A template for testing persistences that can digest byte
- * arrays. This class uses a MapBasedPersistence, but this
- * can be changed by simply overwriting the setUp method
+ * A template for testing persistences that can digest Strings. 
  */
 public class StringPersistenceTest
     extends TestCase {
