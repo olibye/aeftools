@@ -82,7 +82,7 @@ public abstract class MarshallingPersistence<T> implements
     for (Entry<String, byte[]> entry : backend.scan(start,
         end, max)) {
       T value = null;
-      if (entry.getKey() != null) {
+      if (entry.getValue() != null) {
         value = makeType(entry.getValue());
       }
       result
