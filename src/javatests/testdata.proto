@@ -1,0 +1,13 @@
+// Compile from project root with
+// ./protoc --java_out=./src/javatests ./src/javatests/testdata.proto
+
+package javatests;
+
+option java_package = "com.appenginefan.toolkit.persistence";
+option java_outer_classname = "TestData";
+option optimize_for = SPEED;
+
+message Person {
+  required string name = 1;
+  optional string email = 2;
+}

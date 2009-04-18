@@ -1,0 +1,94 @@
+<project name="App Engine Fan's toolkit" default="compile" basedir=".">
+    <description>
+        Builds the App Engine Fan's toolkit library
+    </description>
+
+  <!-- Global settings -->
+  <property name="src" location="src/java"/>
+  <property name="testsrc" location="src/javatests"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+  <property name="tmp"  location="${build}/tmp"/>
+  <property name="docs" location="docs"/>
+  
+  <!-- Dervied settings, must not be changed!!! -->
+  <property name="finaljar" location="${dist}/aeftools.jar"/>
+  <path id="classpath.build">
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+      <include name="**/*.zip"/>
+    </fileset>
+  </path>
+  <path id="classpath.test">
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+      <include name="**/*.zip"/>
+    </fileset>
+    <fileset dir="testlib">
+      <include name="**/*.jar"/>
+      <include name="**/*.zip"/>
+    </fileset>
+    <pathelement location="${finaljar}"/>
+  </path>
+
+  <!-- Remove files and directories created by this build -->
+  <target name="clean"
+        description="clean up" >
+    <delete dir="${tmp}"/>
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+  <!-- Initialization (make sure directories exist) -->
+  <target name="mkdir">
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${build}"/>
+    <mkdir dir="${build}/java"/>
+    <mkdir dir="${build}/javatests"/>
+    <mkdir dir="${build}/testreports"/>
+    <mkdir dir="${tmp}"/>
+    <mkdir dir="${docs}"/>
+    <mkdir dir="${docs}/api"/>
+  </target>
+
+  <!-- Compile production code and create small jar-file -->
+  <target name="compile" depends="mkdir"
+        description="compile the source and build a jar" >
+    <javac srcdir="${src}" destdir="${build}/java" debug="true">
+      <classpath refid="classpath.build"/>
+    </javac>
+    <jar jarfile="${finaljar}" basedir="${build}/java"/>
+  </target>
+
+  <!-- Compile and execute the unit tests -->
+  <target name="test" depends="compile"
+        description="compile and execute unit tests" >
+    <javac srcdir="${testsrc}" destdir="${build}/javatests">
+      <classpath refid="classpath.test"/>
+    </javac>
+    <junit printsummary="yes" haltonfailure="yes" tempdir="${build}/tmp">
+      <classpath>
+        <pathelement path="${build}/javatests"/>
+        <path refid="classpath.test"/>
+      </classpath>    
+      <formatter type="plain"/>   
+      <batchtest todir="${build}/testreports">
+        <fileset dir="${testsrc}">
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+  
+  <!-- Compile documentation -->
+  <target name="doc" depends="compile">
+    <javadoc sourcepath="${src}" destdir="${docs}/api" classpathref="classpath.build">
+          <link offline="false" href="http://java.sun.com/javase/6/docs/api/"/>
+          <link offline="false" href="http://google-collections.googlecode.com/svn/trunk/javadoc/"/>
+          <link offline="false" href="http://code.google.com/apis/protocolbuffers/docs/reference/java/"/>
+          <link offline="false" href="http://code.google.com/appengine/docs/java/javadoc/"/>
+    </javadoc>
+  </target>
+
+</project>
+
