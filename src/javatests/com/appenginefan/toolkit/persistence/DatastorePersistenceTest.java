@@ -19,6 +19,7 @@
 package com.appenginefan.toolkit.persistence;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.easymock.classextension.EasyMock;
 
@@ -26,6 +27,7 @@ import com.google.appengine.api.datastore.dev.LocalDatastoreService;
 import com.google.appengine.tools.development.ApiProxyLocalImpl;
 import com.google.apphosting.api.ApiProxy;
 import com.google.apphosting.api.ApiProxy.Environment;
+import com.google.common.base.Functions;
 
 public class DatastorePersistenceTest
     extends ByteArrayBasedPersistenceTest {
@@ -50,6 +52,11 @@ public class DatastorePersistenceTest
     persistence = new DatastorePersistence(null, " foo ");
     supportsDefensiveCopy = true;
     super.setUp();
+  }
+  
+  public void testNumericKey() throws Exception {
+    persistence.mutate("13", Functions.constant("abc".getBytes()));
+    assertTrue(Arrays.equals("abc".getBytes(), persistence.get("13")));
   }
 
 }

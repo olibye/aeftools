@@ -59,6 +59,18 @@ public class DatastorePersistence implements
 
   private final String kind;
 
+  private static String escape(String key) {
+    Preconditions.checkNotNull(key);
+    return ":" + key;
+  }
+
+  private static String unescape(String key) {
+    Preconditions.checkNotNull(key);
+    Preconditions.checkArgument(key.startsWith(":"),
+        "key should start with :");
+    return key.substring(1);
+  }
+
   /**
    * Constructor.
    * 
@@ -81,7 +93,7 @@ public class DatastorePersistence implements
     this.service = serviceOrNull;
     this.kind = PREFIX + partition;
   }
-  
+
   /**
    * Constructor.
    * 
@@ -100,7 +112,8 @@ public class DatastorePersistence implements
     Preconditions.checkNotNull(key);
     try {
       Entity entity =
-          service.get(KeyFactory.createKey(kind, key));
+          service.get(KeyFactory.createKey(kind,
+              escape(key)));
       return ((Blob) entity.getProperty(PROPERTY))
           .getBytes();
     } catch (EntityNotFoundException e) {
@@ -113,7 +126,7 @@ public class DatastorePersistence implements
       Function<? super byte[], ? extends byte[]> mutator) {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(mutator);
-    Key dbKey = KeyFactory.createKey(kind, key);
+    Key dbKey = KeyFactory.createKey(kind, escape(key));
     Exception lastException = null;
     for (int i = 0; i < NUM_RETRIES; i++) {
       Transaction t = service.beginTransaction();
@@ -127,7 +140,7 @@ public class DatastorePersistence implements
                 .getBytes();
       } catch (EntityNotFoundException e) {
         data = null;
-        entity = new Entity(kind, key);
+        entity = new Entity(kind, escape(key));
       }
       data = mutator.apply(data);
       try {
@@ -170,18 +183,18 @@ public class DatastorePersistence implements
     Query query = new Query(kind);
     query.addFilter("__key__",
         FilterOperator.GREATER_THAN_OR_EQUAL, KeyFactory
-            .createKey(kind, start));
+            .createKey(kind, escape(start)));
     query.addFilter("__key__", FilterOperator.LESS_THAN,
-        KeyFactory.createKey(kind, end));
+        KeyFactory.createKey(kind, escape(end)));
     query.addSort("__key__");
     PreparedQuery preparedQuery = service.prepare(query);
     List<Entry<String, byte[]>> result =
         Lists.newArrayList();
     for (Entity entity : preparedQuery
         .asIterable(FetchOptions.Builder.withLimit(max))) {
-      result.add(Maps.immutableEntry(entity.getKey()
-          .getName(), ((Blob) entity.getProperty(PROPERTY))
-          .getBytes()));
+      result.add(Maps.immutableEntry(unescape(entity
+          .getKey().getName()), ((Blob) entity
+          .getProperty(PROPERTY)).getBytes()));
     }
     return result;
   }
