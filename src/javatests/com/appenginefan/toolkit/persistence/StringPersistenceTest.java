@@ -27,7 +27,8 @@ import com.google.common.base.Functions;
 import junit.framework.TestCase;
 
 /**
- * A template for testing persistences that can digest Strings. 
+ * A template for testing persistences that can digest
+ * Strings.
  */
 public class StringPersistenceTest
     extends TestCase {

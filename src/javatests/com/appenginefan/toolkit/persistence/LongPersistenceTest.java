@@ -18,27 +18,25 @@
 
 package com.appenginefan.toolkit.persistence;
 
-import java.util.Arrays;
+import junit.framework.TestCase;
 
-import com.appenginefan.toolkit.common.AppEngineInitializer;
-import com.google.common.base.Functions;
+/**
+ * Tests the object serialization/deserialization methods of
+ * LongPersistence. The rest should be covered by the unit
+ * test sof StringPersistence.
+ */
+public class LongPersistenceTest
+    extends TestCase {
 
-public class DatastorePersistenceTest
-    extends ByteArrayBasedPersistenceTest {
+  private LongPersistence persistence =
+      new LongPersistence(new MapBasedPersistence<byte[]>());
 
-  @Override
-  protected void setUp() throws Exception {
-    AppEngineInitializer.setupMockAppEngine();
-    persistence = new DatastorePersistence(null, " foo ");
-    supportsDefensiveCopy = true;
-    super.setUp();
+  public void testSerialization() {
+    for (Long l : new Long[] { 0L, 3L, 18L,
+        (long) Integer.MAX_VALUE, (long) Integer.MIN_VALUE,
+        Long.MAX_VALUE, Long.MIN_VALUE }) {
+      assertEquals(l, persistence.makeType(persistence
+          .makeArray(l)));
+    }
   }
-
-  public void testNumericKey() throws Exception {
-    persistence.mutate("13", Functions.constant("abc"
-        .getBytes()));
-    assertTrue(Arrays.equals("abc".getBytes(), persistence
-        .get("13")));
-  }
-
 }
