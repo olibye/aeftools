@@ -47,9 +47,9 @@ public class AppEngineInitializer {
     EasyMock.expect(env.getVersionId()).andReturn("1.0")
         .anyTimes();
     EasyMock.expect(env.getDefaultNamespace()).andReturn(
-        null);
+        "gmail.com");
     EasyMock.expect(env.getRequestNamespace()).andReturn(
-        null);
+        "gmail.com");
     EasyMock.replay(env);
     ApiProxy.setEnvironmentForCurrentThread(env);
     ApiProxyLocalImpl proxy =

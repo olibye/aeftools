@@ -222,9 +222,9 @@ public class CounterTest
 
   /**
    * Replicates one of the unit tests on the in-memory
-   * backend. I have yet to get this test to pass :-(
+   * backend.
    */
-  public void DEACTIVATEDtestEmptyStoreAndEmptyMemcacheWithSaveForInMemoryAppEngine() {
+  public void testEmptyStoreAndEmptyMemcacheWithSaveForInMemoryAppEngine() {
 
     // Set up in-memory App Engine
     AppEngineInitializer.setupMockAppEngine();
