@@ -52,8 +52,8 @@ public class Counter {
    * Creates a counter that is not completely reliable (it
    * might loose counts if memcache is resetted)
    * 
-   * @param a
-   *          key that is used to persist the counter shards
+   * @param key
+   *          a key that is used to persist the counter shards
    *          in the datastore and memcache. must not
    *          contain any slashes
    * @param chanceToWrite
@@ -75,8 +75,8 @@ public class Counter {
    * Creates a counter that does not loose count (in other
    * words, it writes to the data store all the time).
    * 
-   * @param a
-   *          key that is used to persist the counter shards
+   * @param key
+   *          a key that is used to persist the counter shards
    *          in the datastore and memcache. must not
    *          contain any slashes
    * @return a counter object
@@ -118,8 +118,8 @@ public class Counter {
    *          every change in the counter will be persisted;
    *          a chanceToWrite of 0.0 means that no change
    *          will be persisted
-   * @param a
-   *          key that is used to persist the counter shards
+   * @param key
+   *          a key that is used to persist the counter shards
    *          in the datastore and memcache. must not
    *          contain any slashes
    * @param numShards
@@ -191,7 +191,7 @@ public class Counter {
    * Increments the value by a positive delta
    * 
    * @param delta
-   * @return
+   * @return the value that the counter was changed to
    */
   public long increment(long delta) {
     Preconditions.checkArgument(delta > 0,

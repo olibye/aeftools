@@ -26,6 +26,10 @@ import com.google.common.base.Function;
 /**
  * Represents a simple way of persisting a particular object
  * type.
+ * 
+ * For more background, check out
+ * <a href="http://blog.appenginefan.com/2009/04/suggested-alternative-approach-to-using.html">
+ * this blog post</a>
  */
 public interface Persistence<T> {
 
