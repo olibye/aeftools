@@ -144,4 +144,33 @@ public class ByteArrayBasedPersistenceTest
     assertEquals(0, scanResult.size());
   }
 
+  public void testScanReverse() {
+    persistence.mutate("A1", Functions.constant("A1"
+        .getBytes()));
+    persistence.mutate("A2", Functions.constant("A2"
+        .getBytes()));
+    persistence.mutate("A3", Functions.constant("A3"
+        .getBytes()));
+    persistence.mutate("A2", Functions
+        .constant((byte[]) null));
+    List<Entry<String, byte[]>> scanResult =
+        persistence.scanReverse("A", "B", 10);
+    assertEquals(2, scanResult.size());
+    assertEquals("A3", scanResult.get(0).getKey());
+    assertEquals("A1", scanResult.get(1).getKey());
+    assertTrue(Arrays.equals("A3".getBytes(), scanResult
+        .get(0).getValue()));
+    assertTrue(Arrays.equals("A1".getBytes(), scanResult
+        .get(1).getValue()));
+    scanResult = persistence.scanReverse("A1", "A3", 10);
+    assertEquals(1, scanResult.size());
+    assertEquals("A1", scanResult.get(0).getKey());
+    scanResult = persistence.scanReverse("A0", "A4", 1);
+    assertEquals(1, scanResult.size());
+    assertEquals("A3", scanResult.get(0).getKey());
+    scanResult = persistence.scanReverse("B", "Z", 10);
+    assertEquals(0, scanResult.size());
+    scanResult = persistence.scanReverse("A0", "A4", 0);
+    assertEquals(0, scanResult.size());
+  }
 }

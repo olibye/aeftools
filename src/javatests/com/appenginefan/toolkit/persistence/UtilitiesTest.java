@@ -72,4 +72,35 @@ public class UtilitiesTest
         "k1", "v1")), Utilities.scanExclusive(persistence,
         "k", "k2", 100));
   }
+
+  @SuppressWarnings("unchecked")
+  public void testScanReverseByPrefix() {
+    assertEquals(Lists.newArrayList(), Utilities
+        .scanReverseByPrefix(persistence, "f", 100));
+    assertEquals(Lists.newArrayList(), Utilities
+        .scanReverseByPrefix(persistence, "k1b", 100));
+    assertEquals(Lists.newArrayList(Maps.immutableEntry(
+        "k2", "v2"), Maps.immutableEntry("k1", "v1")),
+        Utilities
+            .scanReverseByPrefix(persistence, "k", 100));
+    assertEquals(Lists.newArrayList(Maps.immutableEntry(
+        "k1", "v1")), Utilities.scanReverseByPrefix(
+        persistence, "k1", 100));
+    assertEquals(Lists.newArrayList(Maps.immutableEntry(
+        "k2", "v2")), Utilities.scanReverseByPrefix(
+        persistence, "k", 1));
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testScanReverseExclusive() {
+    assertEquals(Lists.newArrayList(), Utilities
+        .scanReverseExclusive(persistence, "k1", "k2", 100));
+    assertEquals(Lists.newArrayList(Maps.immutableEntry(
+        "k2", "v2"), Maps.immutableEntry("k1", "v1")),
+        Utilities.scanReverseExclusive(persistence, "k",
+            "l", 100));
+    assertEquals(Lists.newArrayList(Maps.immutableEntry(
+        "k1", "v1")), Utilities.scanReverseExclusive(
+        persistence, "k", "k2", 100));
+  }
 }

@@ -53,8 +53,8 @@ public class Counter {
    * might loose counts if memcache is resetted)
    * 
    * @param key
-   *          a key that is used to persist the counter shards
-   *          in the datastore and memcache. must not
+   *          a key that is used to persist the counter
+   *          shards in the datastore and memcache. must not
    *          contain any slashes
    * @param chanceToWrite
    *          the relative probability that changes to
@@ -76,8 +76,8 @@ public class Counter {
    * words, it writes to the data store all the time).
    * 
    * @param key
-   *          a key that is used to persist the counter shards
-   *          in the datastore and memcache. must not
+   *          a key that is used to persist the counter
+   *          shards in the datastore and memcache. must not
    *          contain any slashes
    * @return a counter object
    */
@@ -119,8 +119,8 @@ public class Counter {
    *          a chanceToWrite of 0.0 means that no change
    *          will be persisted
    * @param key
-   *          a key that is used to persist the counter shards
-   *          in the datastore and memcache. must not
+   *          a key that is used to persist the counter
+   *          shards in the datastore and memcache. must not
    *          contain any slashes
    * @param numShards
    *          the number of shards that should be used to

@@ -90,4 +90,21 @@ public abstract class MarshallingPersistence<T> implements
     }
     return result;
   }
+
+  @Override
+  public List<Entry<String, T>> scanReverse(String start,
+      String end, int max) {
+    List<Entry<String, T>> result = Lists.newArrayList();
+    for (Entry<String, byte[]> entry : backend.scanReverse(
+        start, end, max)) {
+      T value = null;
+      if (entry.getValue() != null) {
+        value = makeType(entry.getValue());
+      }
+      result
+          .add(Maps.immutableEntry(entry.getKey(), value));
+    }
+    return result;
+  }
+
 }

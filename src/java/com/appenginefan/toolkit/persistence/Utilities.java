@@ -79,4 +79,55 @@ public class Utilities {
     return persistence.scan(start + Character.MIN_VALUE,
         end, max);
   }
+
+  /**
+   * Finds zero or more entries that start with a given
+   * prefix. Uses a reverse scan.
+   * 
+   * @param prefix
+   *          a string that all keys found should start
+   *          with.
+   * @param max
+   *          a maximum amount of elements to return. The
+   *          implementation of the store may choose to
+   *          return less (for example, if a store can only
+   *          fetch 10 elements per query, then setting a
+   *          max of 1000 will still only return 10), but
+   *          never more.
+   * @return a list of up to max key/value pairs, ordered by
+   *         key (descending)
+   */
+  public static <T> List<Entry<String, T>> scanReverseByPrefix(
+      Persistence<T> persistence, String prefix, int max) {
+    return persistence.scanReverse(prefix, prefix
+        + Character.MAX_VALUE, max);
+  }
+
+  /**
+   * Finds zero or more entries that are within a given
+   * range, with the start also being exclusive. Uses a
+   * reverse scan.
+   * 
+   * @param start
+   *          a lower bound of the range of keys to look in
+   *          (<b>exclusive</b>)
+   * @param end
+   *          an upper bound of the range of keys to look in
+   *          (exclusive)
+   * @param max
+   *          a maximum amount of elements to return. The
+   *          implementation of the store may choose to
+   *          return less (for example, if a store can only
+   *          fetch 10 elements per query, then setting a
+   *          max of 1000 will still only return 10), but
+   *          never more.
+   * @return a list of up to max key/value pairs, ordered by
+   *         key (descending)
+   */
+  public static <T> List<Entry<String, T>> scanReverseExclusive(
+      Persistence<T> persistence, String start, String end,
+      int max) {
+    return persistence.scanReverse(start
+        + Character.MIN_VALUE, end, max);
+  }
 }

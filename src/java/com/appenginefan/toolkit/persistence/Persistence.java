@@ -27,9 +27,8 @@ import com.google.common.base.Function;
  * Represents a simple way of persisting a particular object
  * type.
  * 
- * For more background, check out
- * <a href="http://blog.appenginefan.com/2009/04/suggested-alternative-approach-to-using.html">
- * this blog post</a>
+ * For more background, check out <a href="http://blog.appenginefan.com/2009/04/suggested-alternative-approach-to-using.html"
+ * > this blog post</a>
  */
 public interface Persistence<T> {
 
@@ -90,4 +89,28 @@ public interface Persistence<T> {
   public List<Map.Entry<String, T>> scan(String start,
       String end, int max);
 
+  /**
+   * Finds zero or more entries that are within a given
+   * range, but orders in the opposite direction. Useful for
+   * pagination to jump to the end of a range and get the
+   * "last ten" entries
+   * 
+   * @param start
+   *          a lower bound of the range of keys to look in
+   *          (inclusive)
+   * @param end
+   *          an upper bound of the range of keys to look in
+   *          (exclusive)
+   * @param max
+   *          a maximum amount of elements to return. The
+   *          implementation of the store may choose to
+   *          return less (for example, if a store can only
+   *          fetch 10 elements per query, then setting a
+   *          max of 1000 will still only return 10), but
+   *          never more.
+   * @return a list of up to max key/value pairs, ordered by
+   *         key in descending order
+   */
+  public List<Map.Entry<String, T>> scanReverse(
+      String start, String end, int max);
 }

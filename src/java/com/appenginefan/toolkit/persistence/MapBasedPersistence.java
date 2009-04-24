@@ -82,4 +82,19 @@ public class MapBasedPersistence<T> implements
     return result;
   }
 
+  @Override
+  public List<Entry<String, T>> scanReverse(String start,
+      String end, int max) {
+    List<Entry<String, T>> sublist =
+        Lists.newLinkedList(store.subMap(start, end)
+            .entrySet());
+    while (sublist.size() > max) {
+      sublist.remove(0);
+    }
+    List<Entry<String, T>> result = Lists.newLinkedList();
+    for (Entry<String, T> entry : sublist) {
+      result.add(0, entry);
+    }
+    return result;
+  }
 }

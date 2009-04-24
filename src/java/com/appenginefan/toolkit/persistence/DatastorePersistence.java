@@ -35,6 +35,7 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -171,9 +172,8 @@ public class DatastorePersistence implements
         lastException);
   }
 
-  @Override
   public List<Entry<String, byte[]>> scan(String start,
-      String end, int max) {
+      String end, int max, SortDirection direction) {
     Preconditions.checkNotNull(start);
     Preconditions.checkNotNull(end);
     Preconditions.checkArgument(max > -1);
@@ -186,7 +186,7 @@ public class DatastorePersistence implements
             .createKey(kind, escape(start)));
     query.addFilter("__key__", FilterOperator.LESS_THAN,
         KeyFactory.createKey(kind, escape(end)));
-    query.addSort("__key__");
+    query.addSort("__key__", direction);
     PreparedQuery preparedQuery = service.prepare(query);
     List<Entry<String, byte[]>> result =
         Lists.newArrayList();
@@ -197,6 +197,18 @@ public class DatastorePersistence implements
           .getProperty(PROPERTY)).getBytes()));
     }
     return result;
+  }
+
+  @Override
+  public List<Entry<String, byte[]>> scan(String start,
+      String end, int max) {
+    return scan(start, end, max, SortDirection.ASCENDING);
+  }
+
+  @Override
+  public List<Entry<String, byte[]>> scanReverse(
+      String start, String end, int max) {
+    return scan(start, end, max, SortDirection.DESCENDING);
   }
 
 }
