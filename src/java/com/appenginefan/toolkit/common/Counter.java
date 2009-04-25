@@ -43,6 +43,9 @@ import com.google.common.base.Function;
  * reliable counter objects (with a write-probability of 1)
  * are guaranteed to always be increasing, which is a useful
  * property for storing ordered entities in the store.
+ * 
+ * For more background, check out <a href="http://blog.appenginefan.com/2009/04/efficient-global-counters-revisited.html"
+ * > this blog post</a>
  */
 public class Counter {
 
@@ -213,5 +216,16 @@ public class Counter {
           });
     }
     return result;
+  }
+
+  /**
+   * Returns true if the counter is writing to the store
+   * each and every time, which makes it possible to use as
+   * an id generator.
+   * 
+   * @return true if the chance-to-write is 1.0
+   */
+  public boolean isIdGenerator() {
+    return chanceToWrite == 1.0;
   }
 }
