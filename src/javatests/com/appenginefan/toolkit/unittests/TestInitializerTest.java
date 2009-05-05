@@ -19,9 +19,6 @@ package com.appenginefan.toolkit.unittests;
 
 import junit.framework.TestCase;
 
-import static com.appenginefan.toolkit.unittests.TestInitializer.Option.GET_PERSISTENCE_MANAGER_FACTORY;
-import static com.appenginefan.toolkit.unittests.TestInitializer.Option.INCLUDE_JDO;
-
 /**
  * Unit tests for the test initializer.
  */
@@ -34,16 +31,12 @@ public class TestInitializerTest
    * that that works.
    */
   public void testMultipleJdoRuns() throws Exception {
-    TestInitializer t1 =
-        new TestInitializer(null,
-            GET_PERSISTENCE_MANAGER_FACTORY, INCLUDE_JDO);
+    TestInitializer t1 = new TestInitializer(null);
     t1.setUp();
     assertNotNull(t1.getPersistenceManagerFactory());
     t1.tearDown(true);
 
-    TestInitializer t2 =
-        new TestInitializer(null,
-            GET_PERSISTENCE_MANAGER_FACTORY, INCLUDE_JDO);
+    TestInitializer t2 = new TestInitializer(null);
     t2.setUp();
     assertNotNull(t2.getPersistenceManagerFactory());
     t2.tearDown(true);

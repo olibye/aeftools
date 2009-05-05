@@ -17,9 +17,6 @@
  */
 package com.appenginefan.toolkit.unittests;
 
-import static com.appenginefan.toolkit.unittests.TestInitializer.Option.GET_PERSISTENCE_MANAGER_FACTORY;
-import static com.appenginefan.toolkit.unittests.TestInitializer.Option.INCLUDE_JDO;
-
 import java.util.Date;
 
 import javax.jdo.PersistenceManager;
@@ -30,10 +27,6 @@ import javax.jdo.PersistenceManager;
  */
 public class SimpleJDOTest
     extends BaseTest {
-
-  public SimpleJDOTest() {
-    super(GET_PERSISTENCE_MANAGER_FACTORY, INCLUDE_JDO);
-  }
 
   public void testSetAndGet() {
 
@@ -55,6 +48,10 @@ public class SimpleJDOTest
     assertEquals(employee.getFirstName(), "John");
     assertEquals(employee.getLastName(), "Doe");
     manager.close();
+  }
+
+  public void testSecondRunStillWorks() {
+    testSetAndGet();
   }
 
 }

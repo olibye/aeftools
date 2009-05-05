@@ -20,7 +20,6 @@ package com.appenginefan.toolkit.unittests;
 import javax.jdo.PersistenceManager;
 
 import com.google.apphosting.api.ApiProxy;
-import com.google.common.base.Preconditions;
 
 import junit.framework.TestCase;
 
@@ -32,35 +31,12 @@ import junit.framework.TestCase;
 public abstract class BaseTest
     extends TestCase {
 
-  private TestInitializer.Option[] options;
-
   private boolean wasSuccess;
-
-  /** Constructor for standard options */
-  public BaseTest() {
-    this(new TestInitializer.Option[0]);
-  }
-
-  /** Constructor for non-standard setup options like JDO */
-  public BaseTest(TestInitializer.Option... options) {
-    Preconditions.checkNotNull(options);
-    this.options = options.clone();
-  }
 
   /**
    * The initializer used in this test.
    */
   protected TestInitializer initializer;
-
-  /**
-   * Gets the list of options that should be used for
-   * setting up a test environment. Default behavior is to
-   * return the arguments passed into the constructor. Can
-   * be overloaded.
-   */
-  protected TestInitializer.Option[] getOptions() {
-    return options.clone();
-  }
 
   /**
    * Returns the environment that should be used for the
@@ -81,8 +57,7 @@ public abstract class BaseTest
     }
     super.setUp();
     initializer =
-        new TestInitializer(getEnvironmentOrNull(),
-            getOptions());
+        new TestInitializer(getEnvironmentOrNull());
     initializer.setUp();
   }
 

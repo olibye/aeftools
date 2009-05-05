@@ -19,71 +19,42 @@ package com.appenginefan.toolkit.unittests;
 
 import java.io.File;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 
-import org.datanucleus.store.appengine.DatastoreTestHelper;
-
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.dev.LocalDatastoreService;
 import com.google.appengine.tools.development.ApiProxyLocalImpl;
 import com.google.apphosting.api.ApiProxy;
-import com.google.common.collect.Sets;
 
 /**
  * Initializes an App Engine environment for unit tests
  */
 public class TestInitializer {
 
-  /**
-   * A couple of options that determine how the {@link TestInitializer}
-   * behaves. 
-   */
-  public static enum Option {
-
-    /** Initialize JDO-specific parts of the test. */
-    INCLUDE_JDO,
-
-    /**
-     * If JDO is used, also store a local
-     * PersistenceManagerFactory. Not necessary if an
-     * application has its own jdoconfig.xml and wants to
-     * take care of getting its own persistencemanager
-     * factory.
-     */
-    GET_PERSISTENCE_MANAGER_FACTORY;
-  }
-
   private final ApiProxy.Environment environment;
 
-  private final Set<Option> options;
-
-  private final DatastoreTestHelper jdoHelper;
-
   private PersistenceManagerFactory pmf;
-
-  private Properties originalProperties;
 
   /**
    * Constructor
    * 
    * @param environmentOrNull
    *          the environment that should be used for the
-   *          test
-   * @param options
-   *          options useful to customize the behavior
-   *          during the setup process (like whether or not
-   *          to initialize jdo)
+   *          test (null to use the default)
    */
   public TestInitializer(
-      ApiProxy.Environment environmentOrNull,
-      Option... options) {
-    this.options = Sets.newHashSet(options);
-    this.jdoHelper = new DatastoreTestHelper();
+      ApiProxy.Environment environmentOrNull) {
     this.environment =
         (environmentOrNull == null) ? new TestEnvironment()
             : environmentOrNull;
+  }
+
+  /** Constructor with default parameters */
+  public TestInitializer() {
+    this(null);
   }
 
   /**
@@ -93,60 +64,15 @@ public class TestInitializer {
    */
   public void setUp() throws Exception {
 
-    // Start with the JDO setup
-    if (options.contains(Option.INCLUDE_JDO)) {
-
-      // First, let's make a backup of the system
-      // properties,
-      originalProperties = System.getProperties();
-
-      // Now, let's go through the regular setup
-      jdoHelper.setUp();
-
-      // Should we build our own persistence manager
-      // factory?
-      if (options
-          .contains(Option.GET_PERSISTENCE_MANAGER_FACTORY)) {
-        Properties newProperties = new Properties();
-        newProperties.putAll(originalProperties);
-        newProperties
-            .put(
-                "javax.jdo.PersistenceManagerFactoryClass",
-                "org.datanucleus.store.appengine.jdo.DatastoreJDOPersistenceManagerFactory");
-        newProperties.put("javax.jdo.option.ConnectionURL",
-            "appengine");
-        newProperties
-            .put("javax.jdo.option.NontransactionalRead",
-                "true");
-        newProperties.put(
-            "javax.jdo.option.NontransactionalWrite",
-            "true");
-        newProperties.put("javax.jdo.option.RetainValues",
-            "true");
-        newProperties
-            .put(
-                "datanucleus.appengine.autoCreateDatastoreTxns",
-                "true");
-        newProperties
-            .put(
-                "datanucleus.appengine.autoCreateDatastoreTxns",
-                "true");
-        pmf =
-            JDOHelper
-                .getPersistenceManagerFactory(newProperties);
-      }
-    } else {
-
-      // Alternative setup process if jdoHelper.setUp() is
-      // not used
-      ApiProxyLocalImpl proxy =
-          new ApiProxyLocalImpl(new File(".")) {
-          };
-      proxy.setProperty(
-          LocalDatastoreService.NO_STORAGE_PROPERTY,
-          Boolean.TRUE.toString());
-      ApiProxy.setDelegate(proxy);
-    }
+    // Alternative setup process if jdoHelper.setUp() is
+    // not usedApiProxyLocalImpl
+    ApiProxyLocalImpl proxy =
+        new ApiProxyLocalImpl(new File(".")) {
+        };
+    proxy.setProperty(
+        LocalDatastoreService.NO_STORAGE_PROPERTY,
+        Boolean.TRUE.toString());
+    ApiProxy.setDelegate(proxy);
 
     // Replace the ApiProxy-environment with our own,
     // which will be more customizable eventually
@@ -165,9 +91,25 @@ public class TestInitializer {
    */
   public void tearDown(boolean testWasSuccessful)
       throws Exception {
-    if (options.contains(Option.INCLUDE_JDO)) {
-      jdoHelper.tearDown(testWasSuccessful);
+    Transaction txn =
+        DatastoreServiceFactory.getDatastoreService()
+            .getCurrentTransaction(null);
+    try {
+      if (txn != null) {
+        try {
+          txn.rollback();
+        } finally {
+          if (testWasSuccessful) {
+            throw new IllegalStateException(
+                "Datastore service still has an active txn.  Please "
+                    + "rollback or commit all txns before test completes.");
+          }
+        }
+      }
+    } finally {
+      ApiProxy.clearEnvironmentForCurrentThread();
     }
+
   }
 
   /**
@@ -175,6 +117,30 @@ public class TestInitializer {
    * this Initializer.
    */
   public PersistenceManagerFactory getPersistenceManagerFactory() {
+    if (pmf == null) {
+      Properties newProperties = new Properties();
+      newProperties
+          .put(
+              "javax.jdo.PersistenceManagerFactoryClass",
+              "org.datanucleus.store.appengine.jdo.DatastoreJDOPersistenceManagerFactory");
+      newProperties.put("javax.jdo.option.ConnectionURL",
+          "appengine");
+      newProperties.put(
+          "javax.jdo.option.NontransactionalRead", "true");
+      newProperties.put(
+          "javax.jdo.option.NontransactionalWrite", "true");
+      newProperties.put("javax.jdo.option.RetainValues",
+          "true");
+      newProperties.put(
+          "datanucleus.appengine.autoCreateDatastoreTxns",
+          "true");
+      newProperties.put(
+          "datanucleus.appengine.autoCreateDatastoreTxns",
+          "true");
+      pmf =
+          JDOHelper
+              .getPersistenceManagerFactory(newProperties);
+    }
     return pmf;
   }
 
