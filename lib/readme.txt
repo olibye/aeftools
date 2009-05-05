@@ -1,5 +1,9 @@
-To run the "compile" target in ant, put the following jar files here:
+Put the following jar files here:
 
-appengine-api.jar (latest version from App Engine SDK)
+cglib-nodep-2.2.jar (or later, whatever easymock needs)
+easymock.jar
+easymockclassextension.jar  
 google-collect-1.0-rc1.jar (or later version)
+junit.jar (I was using Junit 3)
 protobuf-java-2.0.3.jar (or later version)
+

@@ -26,18 +26,17 @@ import com.appenginefan.toolkit.persistence.DatastorePersistence;
 import com.appenginefan.toolkit.persistence.LongPersistence;
 import com.appenginefan.toolkit.persistence.MapBasedPersistence;
 import com.appenginefan.toolkit.persistence.Persistence;
+import com.appenginefan.toolkit.unittests.BaseTest;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService.SetPolicy;
 import com.google.common.base.Functions;
 
-import junit.framework.TestCase;
-
 /**
  * Unit tests for the Counter class
  */
 public class CounterTest
-    extends TestCase {
+    extends BaseTest {
 
   private static final String MEMCACHE_KEY = "aef/c/tst";
 
@@ -224,10 +223,10 @@ public class CounterTest
    * Replicates one of the unit tests on the in-memory
    * backend.
    */
-  public void testEmptyStoreAndEmptyMemcacheWithSaveForInMemoryAppEngine() {
+  public void testEmptyStoreAndEmptyMemcacheWithSaveForInMemoryAppEngine()
+      throws Exception {
 
     // Set up in-memory App Engine
-    AppEngineInitializer.setupMockAppEngine();
     DatastorePersistence bytePersistence =
         new DatastorePersistence("foo");
     datastore = new LongPersistence(bytePersistence);

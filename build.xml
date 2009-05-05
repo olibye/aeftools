@@ -10,25 +10,28 @@
   <property name="dist"  location="dist"/>
   <property name="tmp"  location="${build}/tmp"/>
   <property name="docs" location="docs"/>
+  <property name="appengine.sdk.dir" location="../../lib/appengine-java-sdk-1.2.0"/>
   
   <!-- Dervied settings, must not be changed!!! -->
+  <import file="${appengine.sdk.dir}/config/user/ant-macros.xml"/>
   <property name="finaljar" location="${dist}/aeftools.jar"/>
-  <path id="classpath.build">
+  <path id="classpath.enhancer">
+    <fileset dir="${appengine.sdk.dir}">
+      <include name="**/lib/*.jar"/>
+      <include name="**/lib/*.zip"/>
+      <exclude name="**/demos/**/*.zip"/>
+    </fileset>
     <fileset dir="lib">
       <include name="**/*.jar"/>
       <include name="**/*.zip"/>
     </fileset>
   </path>
-  <path id="classpath.test">
-    <fileset dir="lib">
-      <include name="**/*.jar"/>
-      <include name="**/*.zip"/>
+  <path id="classpath.build">
+    <path refid="classpath.enhancer"/>
+    <fileset dir="${appengine.sdk.dir}">
+      <include name="**/lib/impl/*.jar"/>
+      <include name="**/lib/impl/*.zip"/>
     </fileset>
-    <fileset dir="testlib">
-      <include name="**/*.jar"/>
-      <include name="**/*.zip"/>
-    </fileset>
-    <pathelement location="${finaljar}"/>
   </path>
 
   <!-- Remove files and directories created by this build -->
@@ -64,12 +67,24 @@
   <target name="test" depends="compile"
         description="compile and execute unit tests" >
     <javac srcdir="${testsrc}" destdir="${build}/javatests">
-      <classpath refid="classpath.test"/>
+      <classpath>
+        <pathelement path="${build}/java"/>
+        <path refid="classpath.build"/>
+      </classpath>
     </javac>
+    <enhance failonerror="true">
+      <classpath>
+        <pathelement path="${build}/java"/>
+        <pathelement path="${build}/javatests"/>
+        <path refid="classpath.enhancer"/>
+      </classpath>
+      <fileset dir="${build}/javatests" includes="**/*Data.class"/>
+    </enhance>
     <junit printsummary="yes" haltonfailure="yes" tempdir="${build}/tmp">
       <classpath>
+        <pathelement path="${build}/java"/>
         <pathelement path="${build}/javatests"/>
-        <path refid="classpath.test"/>
+        <path refid="classpath.build"/>
       </classpath>    
       <formatter type="plain"/>   
       <batchtest todir="${build}/testreports">
@@ -82,7 +97,7 @@
   
   <!-- Compile documentation -->
   <target name="doc" depends="compile">
-    <javadoc sourcepath="${src}" destdir="${docs}/api" classpathref="classpath.build">
+    <javadoc sourcepath="${src}" destdir="${docs}/api" classpathref="classpath.build" packagenames="com.appenginefan.*">
           <link offline="false" href="http://java.sun.com/javase/6/docs/api/"/>
           <link offline="false" href="http://google-collections.googlecode.com/svn/trunk/javadoc/"/>
           <link offline="false" href="http://code.google.com/apis/protocolbuffers/docs/reference/java/"/>

@@ -18,9 +18,7 @@
 
 package com.appenginefan.toolkit.persistence;
 
-import junit.framework.TestCase;
-
-import com.appenginefan.toolkit.common.AppEngineInitializer;
+import com.appenginefan.toolkit.unittests.BaseTest;
 import com.google.appengine.repackaged.com.google.common.collect.Maps;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
@@ -29,14 +27,13 @@ import com.google.common.collect.Lists;
  * Unit tests for the utility functions
  */
 public class UtilitiesTest
-    extends TestCase {
+    extends BaseTest {
 
   private Persistence<String> persistence;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    AppEngineInitializer.setupMockAppEngine();
     persistence =
         new StringPersistence(new DatastorePersistence(
             null, " foo "));

@@ -22,10 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.appenginefan.toolkit.unittests.BaseTest;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-
-import junit.framework.TestCase;
 
 /**
  * A template for testing persistences that can digest byte
@@ -33,7 +32,7 @@ import junit.framework.TestCase;
  * can be changed by simply overwriting the setUp method
  */
 public class ByteArrayBasedPersistenceTest
-    extends TestCase {
+    extends BaseTest {
 
   /**
    * Should be set up in the setUp method

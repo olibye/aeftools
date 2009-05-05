@@ -20,7 +20,6 @@ package com.appenginefan.toolkit.persistence;
 
 import java.util.Arrays;
 
-import com.appenginefan.toolkit.common.AppEngineInitializer;
 import com.google.common.base.Functions;
 
 public class DatastorePersistenceTest
@@ -28,7 +27,6 @@ public class DatastorePersistenceTest
 
   @Override
   protected void setUp() throws Exception {
-    AppEngineInitializer.setupMockAppEngine();
     persistence = new DatastorePersistence(null, " foo ");
     supportsDefensiveCopy = true;
     super.setUp();
