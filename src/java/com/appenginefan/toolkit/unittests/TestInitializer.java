@@ -63,9 +63,6 @@ public class TestInitializer {
    * object.
    */
   public void setUp() throws Exception {
-
-    // Alternative setup process if jdoHelper.setUp() is
-    // not usedApiProxyLocalImpl
     ApiProxyLocalImpl proxy =
         new ApiProxyLocalImpl(new File(".")) {
         };
@@ -73,9 +70,6 @@ public class TestInitializer {
         LocalDatastoreService.NO_STORAGE_PROPERTY,
         Boolean.TRUE.toString());
     ApiProxy.setDelegate(proxy);
-
-    // Replace the ApiProxy-environment with our own,
-    // which will be more customizable eventually
     ApiProxy.setEnvironmentForCurrentThread(environment);
   }
 

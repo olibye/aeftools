@@ -53,6 +53,10 @@ public class DatastorePersistence implements
   private static final String PREFIX = "aef:";
 
   private static final String PROPERTY = "blob";
+  
+  private static final String CREATED = "created_at";
+  
+  private static final String MODIFIED = "changed_at";
 
   private static final int NUM_RETRIES = 10;
 
@@ -142,11 +146,13 @@ public class DatastorePersistence implements
       } catch (EntityNotFoundException e) {
         data = null;
         entity = new Entity(kind, escape(key));
+        entity.setProperty(CREATED, System.currentTimeMillis());
       }
       data = mutator.apply(data);
       try {
         if (data != null) {
           entity.setProperty(PROPERTY, new Blob(data));
+          entity.setProperty(MODIFIED, System.currentTimeMillis());
           service.put(t, entity);
         } else {
           service.delete(t, dbKey);
