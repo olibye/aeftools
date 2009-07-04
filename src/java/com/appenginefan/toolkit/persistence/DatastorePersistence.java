@@ -18,6 +18,7 @@
 
 package com.appenginefan.toolkit.persistence;
 
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map.Entry;
@@ -179,7 +180,7 @@ public class DatastorePersistence implements
   }
 
   public List<Entry<String, byte[]>> scan(String start,
-      String end, int max, SortDirection direction) {
+      String end, int max, SortDirection direction, boolean keysOnly) {
     Preconditions.checkNotNull(start);
     Preconditions.checkNotNull(end);
     Preconditions.checkArgument(max > -1);
@@ -193,14 +194,22 @@ public class DatastorePersistence implements
     query.addFilter("__key__", FilterOperator.LESS_THAN,
         KeyFactory.createKey(kind, escape(end)));
     query.addSort("__key__", direction);
+    if (keysOnly) {
+      query.setKeysOnly();
+    }
     PreparedQuery preparedQuery = service.prepare(query);
     List<Entry<String, byte[]>> result =
         Lists.newArrayList();
     for (Entity entity : preparedQuery
         .asIterable(FetchOptions.Builder.withLimit(max))) {
-      result.add(Maps.immutableEntry(unescape(entity
-          .getKey().getName()), ((Blob) entity
-          .getProperty(PROPERTY)).getBytes()));
+      if (keysOnly) {
+        result.add(Maps.immutableEntry(unescape(entity
+            .getKey().getName()), (byte[]) null));
+      } else {
+        result.add(Maps.immutableEntry(unescape(entity
+            .getKey().getName()), ((Blob) entity
+            .getProperty(PROPERTY)).getBytes()));
+      }
     }
     return result;
   }
@@ -208,13 +217,37 @@ public class DatastorePersistence implements
   @Override
   public List<Entry<String, byte[]>> scan(String start,
       String end, int max) {
-    return scan(start, end, max, SortDirection.ASCENDING);
+    return scan(start, end, max, SortDirection.ASCENDING, false);
   }
 
   @Override
   public List<Entry<String, byte[]>> scanReverse(
       String start, String end, int max) {
-    return scan(start, end, max, SortDirection.DESCENDING);
+    return scan(start, end, max, SortDirection.DESCENDING, false);
+  }
+
+  @Override
+  public List<String> keyScan(String start, String end,
+      int max) {
+    List<Entry<String, byte[]>> toUnwrap = 
+        scan(start, end, max, SortDirection.ASCENDING, true);
+    List<String> result = new ArrayList<String>(toUnwrap.size());
+    for (Entry<String, byte[]> e : toUnwrap) {
+      result.add(e.getKey());
+    }
+    return result;
+  }
+
+  @Override
+  public List<String> keyScanReverse(String start,
+      String end, int max) {
+    List<Entry<String, byte[]>> toUnwrap = 
+      scan(start, end, max, SortDirection.DESCENDING, true);
+  List<String> result = new ArrayList<String>(toUnwrap.size());
+  for (Entry<String, byte[]> e : toUnwrap) {
+    result.add(e.getKey());
+  }
+  return result;
   }
 
 }

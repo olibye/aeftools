@@ -120,8 +120,8 @@ public class WebConnectionServerTest extends TestCase { //implements Comparator 
   public void testParseContent() throws Exception {
     requestBody = p("foo", "a", "b");
     EasyMock.expect(marshaller.loadServerEndpoint(req, "foo")).andReturn(endpoint);
-    receiver.receive(server, endpoint, "a");
-    receiver.receive(server, endpoint, "b");
+    receiver.receive(server, endpoint, "a", req);
+    receiver.receive(server, endpoint, "b", req);
     marshaller.writeState(req, endpoint, resp);
     marshaller.commit(req);
     control.replay();
@@ -132,10 +132,10 @@ public class WebConnectionServerTest extends TestCase { //implements Comparator 
   public void testExceptionInReceiver() throws Exception {
     requestBody = p("foo", "a", "b", "c");
     EasyMock.expect(marshaller.loadServerEndpoint(req, "foo")).andReturn(endpoint);
-    receiver.receive(server, endpoint, "a");
-    receiver.receive(server, endpoint, "b");
+    receiver.receive(server, endpoint, "a", req);
+    receiver.receive(server, endpoint, "b", req);
     EasyMock.expectLastCall().andThrow(new RuntimeException("error in receiver"));
-    receiver.receive(server, endpoint, "c");
+    receiver.receive(server, endpoint, "c", req);
     marshaller.writeState(req, endpoint, resp);
     marshaller.commit(req);
     control.replay();

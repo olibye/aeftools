@@ -18,6 +18,8 @@
 package com.appenginefan.toolkit.common;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -31,6 +33,8 @@ import org.apache.commons.httpclient.methods.PostMethod;
  *
  */
 public class HttpClientEnvironment implements WebConnectionClient.Environment {
+  
+  private static final Logger LOG = Logger.getLogger(HttpClientEnvironment.class.getName());
   
   private final HttpClient client = new HttpClient();
   private final String url;
@@ -67,17 +71,22 @@ public class HttpClientEnvironment implements WebConnectionClient.Environment {
 
   @Override
   public String fetch(String data) {
+    LOG.fine("sending " + data);
     PostMethod method = new PostMethod(url);
     method.setRequestBody(data);
     try {
       int returnCode = client.executeMethod(method);
       if(returnCode == HttpStatus.SC_OK) {
-        return method.getResponseBodyAsString();
+        String response = method.getResponseBodyAsString();
+        LOG.fine("receiving " + response);
+        return response;
+      } else {
+        LOG.log(Level.WARNING, "Communication failed, status code " + returnCode);
       }
     } catch (HttpException e) {
-      e.printStackTrace();
+      LOG.log(Level.WARNING, "Communication failed ", e);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.log(Level.WARNING, "Communication failed ", e);
     }
     finally {
       method.releaseConnection();

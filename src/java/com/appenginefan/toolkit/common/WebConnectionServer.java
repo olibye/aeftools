@@ -43,13 +43,23 @@ import com.google.common.base.Preconditions;
  */
 public class WebConnectionServer {
   
-  public static final Logger LOG = Logger.getLogger(WebConnectionServer.class.getName());
+  private static final Logger LOG = Logger.getLogger(WebConnectionServer.class.getName());
   
   /**
    * Represents the receiving end of a communication
    */
   public static interface Receiver {
-    public void receive(WebConnectionServer server, ServerEndpoint endpoint, String message);
+    
+    public void onEmptyPayload(
+        WebConnectionServer server, 
+        ServerEndpoint endpoint, 
+        HttpServletRequest req);
+    
+    public void receive(
+        WebConnectionServer server, 
+        ServerEndpoint endpoint, 
+        String message,
+        HttpServletRequest req);
   }
   
   /**
@@ -206,11 +216,21 @@ public class WebConnectionServer {
       }
       
       // Process the payload
-      for (String message : messages) {
-        try {
-          receiver.receive(this, bus, message);
-        } catch (Throwable t) {
-          LOG.log(Level.WARNING, "Error while processing: " + message, t);
+      if (!newBus) {
+        if (messages.isEmpty()) {
+          try {
+            receiver.onEmptyPayload(this, bus, req);
+          } catch (Throwable t) {
+            LOG.log(Level.WARNING, "Error while processing empty message", t);
+          }
+        } else {
+          for (String message : messages) {
+            try {
+              receiver.receive(this, bus, message, req);
+            } catch (Throwable t) {
+              LOG.log(Level.WARNING, "Error while processing: " + message, t);
+            }
+          }
         }
       }
       
@@ -236,7 +256,7 @@ public class WebConnectionServer {
    * Loads a ServerEndpoint object from a given handle. The ServerEndpoint object is
    * usually less "complete" than an object constructed from a request, since it
    * does not contain the state stored in the http client, but it is sufficient
-   * to perform certain manipulattions, like enqueuing outgoing messages.
+   * to perform certain manipulations, like enqueuing outgoing messages.
    * @param handle the handle that should be used for constructing the object
    * @return a ServerEndpoint object, or null if the handle is invalid
    */

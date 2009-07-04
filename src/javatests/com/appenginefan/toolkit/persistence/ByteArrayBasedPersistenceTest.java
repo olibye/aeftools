@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import com.appenginefan.toolkit.unittests.BaseTest;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 
 /**
  * A template for testing persistences that can digest byte
@@ -142,6 +143,24 @@ public class ByteArrayBasedPersistenceTest
     scanResult = persistence.scan("A1", "A4", 0);
     assertEquals(0, scanResult.size());
   }
+  
+  public void testScanKeysOnly() {
+    persistence.mutate("A1", Functions.constant("A1"
+        .getBytes()));
+    persistence.mutate("A2", Functions.constant("A2"
+        .getBytes()));
+    persistence.mutate("A3", Functions.constant("A3"
+        .getBytes()));
+    assertEquals(
+        Lists.newArrayList("A1","A2","A3"),
+        persistence.keyScan("A", "B", 10));
+    assertEquals(
+        Lists.newArrayList("A1","A2"),
+        persistence.keyScan("A", "B", 2));
+    assertEquals(
+        Lists.newArrayList("A1","A2"),
+        persistence.keyScan("A", "A3", 5));
+  }
 
   public void testScanReverse() {
     persistence.mutate("A1", Functions.constant("A1"
@@ -172,4 +191,23 @@ public class ByteArrayBasedPersistenceTest
     scanResult = persistence.scanReverse("A0", "A4", 0);
     assertEquals(0, scanResult.size());
   }
+
+  public void testScanReverseKeysOnly() {
+    persistence.mutate("A1", Functions.constant("A1"
+        .getBytes()));
+    persistence.mutate("A2", Functions.constant("A2"
+        .getBytes()));
+    persistence.mutate("A3", Functions.constant("A3"
+        .getBytes()));
+    assertEquals(
+        Lists.newArrayList("A3","A2","A1"),
+        persistence.keyScanReverse("A", "B", 10));
+    assertEquals(
+        Lists.newArrayList("A3","A2"),
+        persistence.keyScanReverse("A", "B", 2));
+    assertEquals(
+        Lists.newArrayList("A2","A1"),
+        persistence.keyScanReverse("A", "A3", 5));
+  }
+  
 }

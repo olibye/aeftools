@@ -18,6 +18,7 @@
 
 package com.appenginefan.toolkit.persistence;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -107,4 +108,15 @@ public abstract class MarshallingPersistence<T> implements
     return result;
   }
 
+  @Override
+  public List<String> keyScan(String start, String end,
+      int max) {
+    return backend.keyScan(start, end, max);
+  }
+
+  @Override
+  public List<String> keyScanReverse(String start,
+      String end, int max) {
+    return backend.keyScanReverse(start, end, max);
+  }
 }

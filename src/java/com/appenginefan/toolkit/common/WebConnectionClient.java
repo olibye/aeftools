@@ -17,9 +17,6 @@
  */
 package com.appenginefan.toolkit.common;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ConcurrentModificationException;
 import java.util.Queue;
@@ -102,58 +99,7 @@ public class WebConnectionClient {
       int silencePeriodInMillis,
       int maxMessages) {
     super();
-    env = new Environment(){
-
-      @Override
-      public long currentTimeMillis() {
-        return System.currentTimeMillis();
-      }
-
-      @Override
-      public void execute(WebConnectionClient bus) {
-        new Thread() {
-          public void run() {
-            try {
-              WebConnectionClient.this.run();
-            } catch (InterruptedException e) {
-              return;
-            }
-          };
-        }.start();
-      }
-
-      @Override
-      public String fetch(String data) {
-        BufferedReader in = null;
-        try {
-          //TODO: how to send data out?
-          in = new BufferedReader(
-              new InputStreamReader(url.openStream()));
-          StringBuilder sb = new StringBuilder();
-          for (String s = in.readLine(); s != null; s = in.readLine()) {
-            sb.append(s);
-            sb.append('\n');
-          }
-          return sb.toString();
-        } catch (IOException e) {
-          return null;
-        } finally {
-          try {
-            if (in != null) {
-              in.close();
-            }
-          } catch (IOException e) {
-            return null;
-          }
-        }
-      }
-
-      @Override
-      public void sleep(long millis)
-          throws InterruptedException {
-        Thread.sleep(millis);
-      }
-    };
+    this.env = new HttpClientEnvironment(url.toString()); 
     this.maxMessages = maxMessages;
     this.silencePeriodInMillis = silencePeriodInMillis;
   }

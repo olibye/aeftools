@@ -18,6 +18,7 @@
 
 package com.appenginefan.toolkit.persistence;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.Map.Entry;
@@ -94,6 +95,28 @@ public class MapBasedPersistence<T> implements
     List<Entry<String, T>> result = Lists.newLinkedList();
     for (Entry<String, T> entry : sublist) {
       result.add(0, entry);
+    }
+    return result;
+  }
+
+  @Override
+  public List<String> keyScan(String start, String end,
+      int max) {
+    List<Entry<String, T>> toUnwrap = scan(start, end, max);
+    List<String> result = new ArrayList<String>(toUnwrap.size());
+    for (Entry<String, T> e : toUnwrap) {
+      result.add(e.getKey());
+    }
+    return result;
+  }
+
+  @Override
+  public List<String> keyScanReverse(String start,
+      String end, int max) {
+    List<Entry<String, T>> toUnwrap = scanReverse(start, end, max);
+    List<String> result = new ArrayList<String>(toUnwrap.size());
+    for (Entry<String, T> e : toUnwrap) {
+      result.add(e.getKey());
     }
     return result;
   }
