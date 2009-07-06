@@ -200,7 +200,7 @@ public class ServerEndpoint {
     unsavedMessages.clear();
   }
   
-  String getHandle() {
+  public String getHandle() {
     checkOpen();
     return key;
   }
