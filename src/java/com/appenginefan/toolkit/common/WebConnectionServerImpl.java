@@ -153,24 +153,39 @@ class WebConnectionServerImpl implements WebConnectionServer.ServerGuts {
     
     // Persist the store to get to a consistent state
     final ServerEndpoint storeBus = (ServerEndpoint) endpoint;
-    storeBus.save();
-    List<Message> messages = 
-        storeBus.getLastKnownState().getMessageQueueList();
-    
-    // Create the meta
-    final String handle = storeBus.getHandle();
-    final String lastAckToken = 
-      messages.isEmpty() 
-        ? "0" 
-        : String.valueOf(messages.get(messages.size() - 1).getAckToken());
-    final String signature = sign(storeBus.getSecret(), handle, lastAckToken);
-    final String meta = String.format("%s.%s.%s", handle, lastAckToken, signature);
-    
-    // Now, add all the outgoing messages
-    PayloadBuilder payload = new PayloadBuilder();
-    payload.setProperty(WebConnectionClient.META, meta);
-    for (Message message : messages) {
-      payload.addPayload(message.getPayload());
+    final boolean connectionIsAlive = storeBus.save();
+    final PayloadBuilder payload = new PayloadBuilder();
+    if (connectionIsAlive) {
+      List<Message> messages = 
+          storeBus.getLastKnownState().getMessageQueueList();
+      
+      // Create the meta
+      final String handle = storeBus.getHandle();
+      final String lastAckToken = 
+        messages.isEmpty() 
+          ? "0" 
+          : String.valueOf(messages.get(messages.size() - 1).getAckToken());
+      final String signature = sign(storeBus.getSecret(), handle, lastAckToken);
+      final String meta = String.format("%s.%s.%s", handle, lastAckToken, signature);
+      
+      // Now, add all the outgoing messages
+      payload.setProperty(WebConnectionClient.META, meta);
+      for (Message message : messages) {
+        payload.addPayload(message.getPayload());
+      }
+    } else {
+      
+      // Get the handle out there, knowing that this bus will never work again in the future
+      final String handle = storeBus.getHandleNoCheck();
+      final String signature = sign(storeBus.getSecretNoCheck(), handle, "0");
+      final String meta = String.format("%s.0.%s", handle, signature);
+      payload.setProperty(WebConnectionClient.META, meta);
+      payload.setProperty(WebConnectionClient.CLOSED, "1");
+      
+      // There are no messages left in the store; we just send what has not been saved yet
+      for (String message : storeBus.getUnsavedMessages()) {
+        payload.addPayload(message);
+      }
     }
     
     // Now, we can write the data to the outgoing stream

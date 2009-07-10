@@ -20,6 +20,7 @@ package com.appenginefan.toolkit.common;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,10 +28,10 @@ import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
 
 import com.appenginefan.toolkit.common.data.ProtoSchema.ConnectionState;
+import com.appenginefan.toolkit.common.data.ProtoSchema.Message;
 import com.appenginefan.toolkit.persistence.MapBasedPersistence;
-import com.appenginefan.toolkit.persistence.ObjectPersistence;
 import com.appenginefan.toolkit.persistence.Persistence;
-import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 import junit.framework.TestCase;
 
@@ -168,10 +169,56 @@ public class WebConnectionServerImpTest extends TestCase {
     EasyMock.expect(
         req.getAttribute(WebConnectionServerImpl.CACHE_PARAM)).andReturn(cache);
     EasyMock.expect(cache.values()).andReturn(Collections.singleton(endpoint));
-    endpoint.save();
+    EasyMock.expect(endpoint.save()).andReturn(true);
     req.setAttribute(WebConnectionServerImpl.CACHE_PARAM, null);
     control.replay();
     server.commit(req);
+    control.verify();
+  }
+  
+  public void testWriteStateExistingBus() throws Exception {
+    ServletOutputStream out = control.createMock(ServletOutputStream.class);
+    EasyMock.expect(endpoint.save()).andReturn(true);
+    EasyMock.expect(endpoint.getLastKnownState()).andReturn(
+        ConnectionState
+        .newBuilder()
+        .addMessageQueue(
+            Message
+            .newBuilder()
+            .setPayload("foo")
+            .setAckToken(LAST_ACK)
+            .build())
+        .setRandomSecret("secret")
+        .build());
+    EasyMock.expect(endpoint.getHandle()).andReturn(HANDLE);
+    EasyMock.expect(endpoint.getSecret()).andReturn(SECRET);
+    EasyMock.expect(res.getOutputStream()).andReturn(out);
+    out.println(
+        new PayloadBuilder()
+        .addPayload("foo")
+        .setProperty(WebConnectionClient.META, META)
+        .toString());
+    control.replay();
+    server.writeState(req, endpoint, res);
+    control.verify();
+  }
+
+  public void testWriteStateRecentlyDeletedBus() throws Exception {
+    ServletOutputStream out = control.createMock(ServletOutputStream.class);
+    EasyMock.expect(endpoint.save()).andReturn(false);
+    EasyMock.expect(endpoint.getHandleNoCheck()).andReturn(HANDLE);
+    EasyMock.expect(endpoint.getSecretNoCheck()).andReturn(SECRET);
+    EasyMock.expect(endpoint.getUnsavedMessages()).andReturn(Lists.newArrayList("foo"));
+    EasyMock.expect(res.getOutputStream()).andReturn(out);
+    out.println(
+        new PayloadBuilder()
+        .addPayload("foo")
+        .setProperty(WebConnectionClient.META, "23.0." +
+            WebConnectionServerImpl.sign(SECRET, HANDLE, "0"))
+        .setProperty(WebConnectionClient.CLOSED, "1")
+        .toString());
+    control.replay();
+    server.writeState(req, endpoint, res);
     control.verify();
   }
 }

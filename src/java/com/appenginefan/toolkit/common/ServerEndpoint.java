@@ -140,10 +140,15 @@ public class ServerEndpoint {
     }
   }
 
-  void save() {
-    checkOpen();
+  boolean save() {
+    if (key == null) {
+      throw new ConcurrentModificationException("bus is not open");
+    }
+    if (cachedProperties == null) {
+      return false;
+    }
     if (!isModified) {
-      return;
+      return true;
     }
     store.mutate(key, new Function<ConnectionState, ConnectionState>(){
       @Override
@@ -198,6 +203,7 @@ public class ServerEndpoint {
     // If there were any unsaved messages and we arrived at this point,
     // they should be persisted
     unsavedMessages.clear();
+    return true;
   }
   
   public String getHandle() {
@@ -205,8 +211,16 @@ public class ServerEndpoint {
     return key;
   }
   
+  String getHandleNoCheck() {
+    return key;
+  }
+  
   String getSecret() {
     checkOpen();
+    return cachedSecret;
+  }
+  
+  String getSecretNoCheck() {
     return cachedSecret;
   }
   
@@ -218,5 +232,9 @@ public class ServerEndpoint {
   
   ConnectionState getLastKnownState() {
     return lastKnownState;
+  }
+  
+  List<String> getUnsavedMessages() {
+    return unsavedMessages;
   }
 }

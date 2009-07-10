@@ -90,7 +90,7 @@ public class ServerEndpointTest extends TestCase {
 
   public void testSaveBeforeOpen() {
     try {
-      bus.save();
+      assertTrue(bus.save());
       fail("Expected ConcurrentModificationException");
     } catch (ConcurrentModificationException expected) {
       // fall through
@@ -139,7 +139,7 @@ public class ServerEndpointTest extends TestCase {
   public void testGetSavedProperty() {
     testOpen();
     bus.setProperty(KEY, VALUE);
-    bus.save();
+    assertTrue(bus.save());
     assertEquals(VALUE, bus.getProperty(KEY, null));
     assertEquals(protoStore.get(KEY).getConnectionPropertiesCount(), 1);
     
@@ -152,7 +152,7 @@ public class ServerEndpointTest extends TestCase {
     testOpen();
     bus.send("23");
     assertEquals(protoStore.get(KEY).getMessageQueueCount(), 0);
-    bus.save();
+    assertTrue(bus.save());
     assertEquals(protoStore.get(KEY).getMessageQueueCount(), 1);
     Message element = protoStore.get(KEY).getMessageQueue(0);
     assertEquals("23", element.getPayload());
@@ -163,10 +163,20 @@ public class ServerEndpointTest extends TestCase {
     testSendMessage();
     bus.ack(2);
     bus.send("24");
-    bus.save();
+    assertTrue(bus.save());
     assertEquals(protoStore.get(KEY).getMessageQueueCount(), 1);
     Message element = protoStore.get(KEY).getMessageQueue(0);
     assertEquals("24", element.getPayload());
     assertEquals(3, element.getAckToken());
+  }
+  
+  public void testSaveAfterDelete() {
+    testOpen();
+    bus.send("23");
+    bus.close();
+    assertFalse(bus.save());
+    assertEquals("23", bus.getUnsavedMessages().get(0));
+    assertNotNull(bus.getSecretNoCheck());
+    assertNotNull(bus.getHandleNoCheck());
   }
 }

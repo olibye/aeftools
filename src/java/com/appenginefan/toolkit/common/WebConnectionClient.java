@@ -38,6 +38,7 @@ public class WebConnectionClient {
   
   private static final Logger LOG = Logger.getLogger(WebConnectionClient.class.getName());
   static final String META = "meta";
+  static final String CLOSED = "closed";
   
   /**
    * Represents the receiving end of the communication
@@ -193,6 +194,10 @@ public class WebConnectionClient {
         if (hello != null) {
           JSONObject parsed = new JSONObject(hello);
           lastMeta = parsed.getString(META);
+          if (parsed.has(CLOSED)) {
+            close();
+            break;
+          }
         }
       } catch (JSONException parseFailed) {
         LOG.severe("Could not parse http response" + hello);
@@ -233,6 +238,9 @@ public class WebConnectionClient {
             lastMeta = newMeta;
           }
           responseMessages = parsed.getJSONArray(PayloadBuilder.TAG);
+          if (parsed.has(CLOSED)) {
+            close();
+          }
         } catch (JSONException parseFailed) {
           LOG.severe("Could not parse http response" + response);
         }
