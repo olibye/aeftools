@@ -50,13 +50,13 @@ public class MapBasedPersistence<T> implements
   }
 
   @Override
-  public T get(String key) {
+  public synchronized T get(String key) {
     Preconditions.checkNotNull(key);
     return store.get(key);
   }
 
   @Override
-  public T mutate(String key,
+  public synchronized T mutate(String key,
       Function<? super T, ? extends T> mutator) {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(mutator);
@@ -70,7 +70,7 @@ public class MapBasedPersistence<T> implements
   }
 
   @Override
-  public List<Entry<String, T>> scan(String start,
+  public synchronized List<Entry<String, T>> scan(String start,
       String end, int max) {
     List<Entry<String, T>> result = Lists.newArrayList();
     for (Entry<String, T> entry : store.subMap(start, end)
@@ -84,7 +84,7 @@ public class MapBasedPersistence<T> implements
   }
 
   @Override
-  public List<Entry<String, T>> scanReverse(String start,
+  public synchronized List<Entry<String, T>> scanReverse(String start,
       String end, int max) {
     List<Entry<String, T>> sublist =
         Lists.newLinkedList(store.subMap(start, end)
@@ -100,7 +100,7 @@ public class MapBasedPersistence<T> implements
   }
 
   @Override
-  public List<String> keyScan(String start, String end,
+  public synchronized List<String> keyScan(String start, String end,
       int max) {
     List<Entry<String, T>> toUnwrap = scan(start, end, max);
     List<String> result = new ArrayList<String>(toUnwrap.size());
@@ -111,7 +111,7 @@ public class MapBasedPersistence<T> implements
   }
 
   @Override
-  public List<String> keyScanReverse(String start,
+  public synchronized List<String> keyScanReverse(String start,
       String end, int max) {
     List<Entry<String, T>> toUnwrap = scanReverse(start, end, max);
     List<String> result = new ArrayList<String>(toUnwrap.size());

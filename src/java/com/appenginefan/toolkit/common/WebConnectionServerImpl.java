@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +39,8 @@ import com.appenginefan.toolkit.persistence.Persistence;
  * Concrete implementation of the inner guts of the WebConnectionServer
  */
 class WebConnectionServerImpl implements WebConnectionServer.ServerGuts {
+  
+  private static final Logger LOG = Logger.getLogger(WebConnectionServerImpl.class.getName());
   
   static final String CACHE_PARAM = "WebConnectionServerImpl.cache";
   
@@ -155,6 +158,7 @@ class WebConnectionServerImpl implements WebConnectionServer.ServerGuts {
     final ServerEndpoint storeBus = (ServerEndpoint) endpoint;
     final boolean connectionIsAlive = storeBus.save();
     final PayloadBuilder payload = new PayloadBuilder();
+    int messageCount = 0;
     if (connectionIsAlive) {
       List<Message> messages = 
           storeBus.getLastKnownState().getMessageQueueList();
@@ -172,6 +176,7 @@ class WebConnectionServerImpl implements WebConnectionServer.ServerGuts {
       payload.setProperty(WebConnectionClient.META, meta);
       for (Message message : messages) {
         payload.addPayload(message.getPayload());
+        messageCount++;
       }
     } else {
       
@@ -185,11 +190,17 @@ class WebConnectionServerImpl implements WebConnectionServer.ServerGuts {
       // There are no messages left in the store; we just send what has not been saved yet
       for (String message : storeBus.getUnsavedMessages()) {
         payload.addPayload(message);
+        messageCount++;
       }
     }
     
     // Now, we can write the data to the outgoing stream
-    response.getOutputStream().println(payload.toString());
+    final String asString = payload.toString();
+    if (messageCount > 0) {
+      LOG.info("Sending " + messageCount + " messages to endpoint " + endpoint.getHandleNoCheck());
+      LOG.fine("Detailed payload: " + asString);
+    }
+    response.getOutputStream().println(asString);
   }
 
 }

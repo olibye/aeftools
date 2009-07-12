@@ -192,6 +192,7 @@ public class WebConnectionServerImpTest extends TestCase {
         .build());
     EasyMock.expect(endpoint.getHandle()).andReturn(HANDLE);
     EasyMock.expect(endpoint.getSecret()).andReturn(SECRET);
+    EasyMock.expect(endpoint.getHandleNoCheck()).andReturn(HANDLE);
     EasyMock.expect(res.getOutputStream()).andReturn(out);
     out.println(
         new PayloadBuilder()
@@ -209,6 +210,7 @@ public class WebConnectionServerImpTest extends TestCase {
     EasyMock.expect(endpoint.getHandleNoCheck()).andReturn(HANDLE);
     EasyMock.expect(endpoint.getSecretNoCheck()).andReturn(SECRET);
     EasyMock.expect(endpoint.getUnsavedMessages()).andReturn(Lists.newArrayList("foo"));
+    EasyMock.expect(endpoint.getHandleNoCheck()).andReturn(HANDLE);
     EasyMock.expect(res.getOutputStream()).andReturn(out);
     out.println(
         new PayloadBuilder()

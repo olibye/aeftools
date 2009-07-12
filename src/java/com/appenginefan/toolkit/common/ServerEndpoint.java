@@ -20,6 +20,7 @@ package com.appenginefan.toolkit.common;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import com.appenginefan.toolkit.common.data.ProtoSchema.ConnectionState;
 import com.appenginefan.toolkit.common.data.ProtoSchema.Message;
@@ -37,6 +38,7 @@ import com.google.common.collect.Lists;
  */
 public class ServerEndpoint {
   
+  private static final Logger LOG = Logger.getLogger(ServerEndpoint.class.getName());
   private final Persistence<ConnectionState> store;
   
   private String key;
@@ -154,7 +156,7 @@ public class ServerEndpoint {
     if (!isModified) {
       return true;
     }
-    store.mutate(key, new Function<ConnectionState, ConnectionState>(){
+    ConnectionState result = store.mutate(key, new Function<ConnectionState, ConnectionState>(){
       @Override
       public ConnectionState apply(ConnectionState oldState) {
         
@@ -214,7 +216,10 @@ public class ServerEndpoint {
     
     // If there were any unsaved messages and we arrived at this point,
     // they should be persisted
-    unsavedMessages.clear();
+    if (unsavedMessages.size() > 0) {
+      unsavedMessages.clear();
+      LOG.finer("Current state of endpoint " + getHandleNoCheck() + ": " + result);
+    }
     return true;
   }
   
