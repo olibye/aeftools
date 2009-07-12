@@ -45,6 +45,15 @@ public class ServerEndpointTest extends TestCase {
     }
   };
   
+  private void rebuildBus() {
+    bus = new ServerEndpoint(bus.getHandle(), binaryStore) {
+      @Override
+      String getRandomKey() {
+        return KEY;
+      }
+    };
+  }
+  
   public void testOpen() {
     
     // Make sure that calling open once will populate the store
@@ -158,12 +167,49 @@ public class ServerEndpointTest extends TestCase {
     assertEquals("23", element.getPayload());
     assertEquals(2, element.getAckToken());
   }
-
+  
   public void testSendAckSend() {
     testSendMessage();
     bus.ack(2);
     bus.send("24");
     assertTrue(bus.save());
+    assertEquals(protoStore.get(KEY).getMessageQueueCount(), 1);
+    Message element = protoStore.get(KEY).getMessageQueue(0);
+    assertEquals("24", element.getPayload());
+    assertEquals(3, element.getAckToken());
+  }
+  
+  public void testSendRebuildAckSend() {
+    testSendMessage();
+    rebuildBus();
+    bus.ack(2);
+    bus.send("24");
+    assertTrue(bus.save());
+    assertEquals(protoStore.get(KEY).getMessageQueueCount(), 1);
+    Message element = protoStore.get(KEY).getMessageQueue(0);
+    assertEquals("24", element.getPayload());
+    assertEquals(3, element.getAckToken());
+  }
+  
+  public void testDuplicateAck() {
+    
+    // Do the regular send and ack cycle
+    testSendMessage();
+    rebuildBus();
+    bus.ack(2);
+    assertTrue(bus.save());
+    rebuildBus();
+    
+    // Another server thread wants to send something to this connection
+    bus.send("24");
+    assertTrue(bus.save());
+    
+    // The receiving thread reconnects and resends its original ack
+    rebuildBus();
+    bus.ack(2);
+    assertTrue(bus.save());
+    
+    // Despite the ack having gone out, the message should not have gotten cleared!
     assertEquals(protoStore.get(KEY).getMessageQueueCount(), 1);
     Message element = protoStore.get(KEY).getMessageQueue(0);
     assertEquals("24", element.getPayload());

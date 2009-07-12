@@ -27,4 +27,5 @@ message ConnectionState {
   repeated Message messageQueue = 1;
   repeated Property connectionProperties = 2;
   required string randomSecret = 3;
+  optional int32 highestAckedMessage = 4;
 }

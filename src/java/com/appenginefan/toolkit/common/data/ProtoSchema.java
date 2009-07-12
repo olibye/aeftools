@@ -644,6 +644,12 @@ public final class ProtoSchema {
     public boolean hasRandomSecret() { return hasRandomSecret; }
     public java.lang.String getRandomSecret() { return randomSecret_; }
     
+    // optional int32 highestAckedMessage = 4;
+    private boolean hasHighestAckedMessage;
+    private int highestAckedMessage_ = 0;
+    public boolean hasHighestAckedMessage() { return hasHighestAckedMessage; }
+    public int getHighestAckedMessage() { return highestAckedMessage_; }
+    
     @Override
     public final boolean isInitialized() {
       if (!hasRandomSecret) return false;
@@ -668,6 +674,9 @@ public final class ProtoSchema {
       if (hasRandomSecret()) {
         output.writeString(3, getRandomSecret());
       }
+      if (hasHighestAckedMessage()) {
+        output.writeInt32(4, getHighestAckedMessage());
+      }
       getUnknownFields().writeTo(output);
     }
     
@@ -689,6 +698,10 @@ public final class ProtoSchema {
       if (hasRandomSecret()) {
         size += com.google.protobuf.CodedOutputStream
           .computeStringSize(3, getRandomSecret());
+      }
+      if (hasHighestAckedMessage()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(4, getHighestAckedMessage());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -839,6 +852,9 @@ public final class ProtoSchema {
         if (other.hasRandomSecret()) {
           setRandomSecret(other.getRandomSecret());
         }
+        if (other.hasHighestAckedMessage()) {
+          setHighestAckedMessage(other.getHighestAckedMessage());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -887,6 +903,10 @@ public final class ProtoSchema {
             }
             case 26: {
               setRandomSecret(input.readString());
+              break;
+            }
+            case 32: {
+              setHighestAckedMessage(input.readInt32());
               break;
             }
           }
@@ -1001,6 +1021,24 @@ public final class ProtoSchema {
         result.randomSecret_ = "";
         return this;
       }
+      
+      // optional int32 highestAckedMessage = 4;
+      public boolean hasHighestAckedMessage() {
+        return result.hasHighestAckedMessage();
+      }
+      public int getHighestAckedMessage() {
+        return result.getHighestAckedMessage();
+      }
+      public Builder setHighestAckedMessage(int value) {
+        result.hasHighestAckedMessage = true;
+        result.highestAckedMessage_ = value;
+        return this;
+      }
+      public Builder clearHighestAckedMessage() {
+        result.hasHighestAckedMessage = false;
+        result.highestAckedMessage_ = 0;
+        return this;
+      }
     }
     
     static {
@@ -1034,12 +1072,13 @@ public final class ProtoSchema {
     java.lang.String descriptorData =
       "\n\025src/java/schema.proto\022\004data\",\n\007Message" +
       "\022\017\n\007payload\030\001 \002(\t\022\020\n\010ackToken\030\002 \002(\005\"&\n\010P" +
-      "roperty\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"z\n\017C" +
-      "onnectionState\022#\n\014messageQueue\030\001 \003(\0132\r.d" +
-      "ata.Message\022,\n\024connectionProperties\030\002 \003(" +
-      "\0132\016.data.Property\022\024\n\014randomSecret\030\003 \002(\tB" +
-      "5\n$com.appenginefan.toolkit.common.dataB" +
-      "\013ProtoSchemaH\001";
+      "roperty\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"\227\001\n\017" +
+      "ConnectionState\022#\n\014messageQueue\030\001 \003(\0132\r." +
+      "data.Message\022,\n\024connectionProperties\030\002 \003" +
+      "(\0132\016.data.Property\022\024\n\014randomSecret\030\003 \002(\t" +
+      "\022\033\n\023highestAckedMessage\030\004 \001(\005B5\n$com.app" +
+      "enginefan.toolkit.common.dataB\013ProtoSche" +
+      "maH\001";
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
         public com.google.protobuf.ExtensionRegistry assignDescriptors(
@@ -1066,7 +1105,7 @@ public final class ProtoSchema {
           internal_static_data_ConnectionState_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_data_ConnectionState_descriptor,
-              new java.lang.String[] { "MessageQueue", "ConnectionProperties", "RandomSecret", },
+              new java.lang.String[] { "MessageQueue", "ConnectionProperties", "RandomSecret", "HighestAckedMessage", },
               com.appenginefan.toolkit.common.data.ProtoSchema.ConnectionState.class,
               com.appenginefan.toolkit.common.data.ProtoSchema.ConnectionState.Builder.class);
           return null;

@@ -76,6 +76,10 @@ public class ServerEndpoint {
       for (Property p : lastKnownState.getConnectionPropertiesList()) {
         cachedProperties.setProperty(p.getKey(), p.getValue());
       }
+      if (lastKnownState.hasHighestAckedMessage()) {
+      highestAckedMessage = Math.max(
+          highestAckedMessage, lastKnownState.getHighestAckedMessage());
+      }
     }
   }
 
@@ -173,10 +177,18 @@ public class ServerEndpoint {
               .build());
         }
         
+        // Remember the highest acked message
+        if (builder.hasHighestAckedMessage()) {
+          highestAckedMessage = Math.max(
+              highestAckedMessage, builder.getHighestAckedMessage());
+        }
+        builder.setHighestAckedMessage(highestAckedMessage);
+        
         // Remove any acked message
         int maxId = Math.max(highestAckedMessage, 1);
         builder.clearMessageQueue();
-        for (int i = oldState.getMessageQueueCount() - 1; i >= 0; i--) {
+        final int oldMessageCount = oldState.getMessageQueueCount();
+        for (int i = 0; i < oldMessageCount; i++) {
           Message messageInQueue = oldState.getMessageQueue(i);
           maxId = Math.max(maxId, messageInQueue.getAckToken());
           if (messageInQueue.getAckToken() > highestAckedMessage) {
