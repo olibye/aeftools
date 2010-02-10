@@ -19,6 +19,9 @@ package com.appenginefan.toolkit.unittests;
 
 import com.google.apphosting.api.ApiProxy;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A dummy test environment, similar to
  * 
@@ -27,6 +30,13 @@ import com.google.apphosting.api.ApiProxy;
  * 
  */
 class TestEnvironment implements ApiProxy.Environment {
+
+  private Map<String, Object> attributes = new HashMap<String, Object>();
+
+  public Map<String, Object> getAttributes() {
+    return attributes;
+  }
+
   public String getAppId() {
     return "Unit Tests";
   }

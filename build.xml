@@ -10,7 +10,7 @@
   <property name="dist"  location="dist"/>
   <property name="tmp"  location="${build}/tmp"/>
   <property name="docs" location="docs"/>
-  <property name="appengine.sdk.dir" location="../../lib/appengine-java-sdk-1.2.1"/>
+  <property name="appengine.sdk.dir" location="../../lib/appengine-java-sdk-1.3.0"/>
   
   <!-- Dervied settings, must not be changed!!! -->
   <import file="${appengine.sdk.dir}/config/user/ant-macros.xml"/>
