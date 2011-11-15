@@ -17,7 +17,6 @@
  */
 package com.appenginefan.toolkit.unittests;
 
-import java.io.File;
 import java.util.Properties;
 
 import javax.jdo.JDOHelper;
@@ -25,8 +24,8 @@ import javax.jdo.PersistenceManagerFactory;
 
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Transaction;
-import com.google.appengine.api.datastore.dev.LocalDatastoreService;
-import com.google.appengine.tools.development.ApiProxyLocalImpl;
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.apphosting.api.ApiProxy;
 
 /**
@@ -35,6 +34,8 @@ import com.google.apphosting.api.ApiProxy;
 public class TestInitializer {
 
   private final ApiProxy.Environment environment;
+  private final LocalServiceTestHelper helper =
+	        new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
   private PersistenceManagerFactory pmf;
 
@@ -63,14 +64,7 @@ public class TestInitializer {
    * object.
    */
   public void setUp() throws Exception {
-    ApiProxyLocalImpl proxy =
-        new ApiProxyLocalImpl(new File(".")) {
-        };
-    proxy.setProperty(
-        LocalDatastoreService.NO_STORAGE_PROPERTY,
-        Boolean.TRUE.toString());
-    ApiProxy.setDelegate(proxy);
-    ApiProxy.setEnvironmentForCurrentThread(environment);
+	  helper.setUp();
   }
 
   /**
