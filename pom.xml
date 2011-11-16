@@ -106,7 +106,7 @@
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-core</artifactId>
 			<!-- GAE uses this old version -->
-			<version>1.1.5</version>
+			<version>1.1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.persistence</groupId>
@@ -118,6 +118,35 @@
 	<build>
 		<sourceDirectory>src/java</sourceDirectory>
 		<testSourceDirectory>src/javatests</testSourceDirectory>
+		
+		<plugins>
+            <plugin>
+                <groupId>org.datanucleus</groupId>
+                <artifactId>maven-datanucleus-plugin</artifactId>
+                <!--  Align with old GAE version of datanucleus-core -->
+                <version>1.1.4</version>
+                <configuration>
+                    <verbose>true</verbose>
+<mappingIncludes>**/*.jdo, **/*.class</mappingIncludes>
+<log4jConfiguration>${basedir}/log4j.properties</log4jConfiguration>
+<verbose>true</verbose>
+<enhancerName>ASM</enhancerName>
+                    <!-- 
+                    <metadataDirectory>target/classes</metadataDirectory>
+                    <metadataIncludes>**/*Data.class</metadataIncludes>
+                     -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>enhance</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+		
 	</build>
 
 </project>
