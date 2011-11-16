@@ -127,14 +127,9 @@
                 <version>1.1.4</version>
                 <configuration>
                     <verbose>true</verbose>
-<mappingIncludes>**/*.jdo, **/*.class</mappingIncludes>
-<log4jConfiguration>${basedir}/log4j.properties</log4jConfiguration>
-<verbose>true</verbose>
-<enhancerName>ASM</enhancerName>
-                    <!-- 
-                    <metadataDirectory>target/classes</metadataDirectory>
+					<mappingIncludes>**/*.class</mappingIncludes>
+                    <mappingDirectory>target/test-classes</mappingDirectory>
                     <metadataIncludes>**/*Data.class</metadataIncludes>
-                     -->
                 </configuration>
                 <executions>
                     <execution>
