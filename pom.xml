@@ -119,6 +119,10 @@
 		<sourceDirectory>src/java</sourceDirectory>
 		<testSourceDirectory>src/javatests</testSourceDirectory>
 		
+		<!-- Force tests into default output dir as early enhancer doesn't appear to have a property -->
+		<!-- http://datanucleus.svn.sourceforge.net/viewvc/datanucleus/tools/maven2/branches/1.1/src/main/java/org/datanucleus/maven/AbstractEnhancerMojo.java?annotate=13809 -->
+		<testOutputDirectory>target/classes</testOutputDirectory>
+		
 		<plugins>
             <plugin>
                 <groupId>org.datanucleus</groupId>
@@ -127,13 +131,11 @@
                 <version>1.1.4</version>
                 <configuration>
                     <verbose>true</verbose>
-					<mappingIncludes>**/*.class</mappingIncludes>
-                    <mappingDirectory>target/test-classes</mappingDirectory>
-                    <metadataIncludes>**/*Data.class</metadataIncludes>
+					<mappingIncludes>**/*Data.class</mappingIncludes>
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>compile</phase>
+                        <phase>process-test-classes</phase>
                         <goals>
                             <goal>enhance</goal>
                         </goals>
